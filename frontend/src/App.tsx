@@ -6,10 +6,12 @@ import {
   DockerContainerStatus,
   EditableFileInfo,
   UserProfile,
+  PortOverviewResponse,
 } from './lib/api';
 import { Header } from './components/Header';
 import { MetricCards } from './components/MetricCards';
 import { ProcessList } from './components/ProcessList';
+import { PortInspector } from './components/PortInspector';
 import { SystemdControls } from './components/SystemdControls';
 import { DockerControls } from './components/DockerControls';
 import { ConfigEditor } from './components/ConfigEditor';
@@ -29,6 +31,8 @@ export const App: React.FC = () => {
   const [services, setServices] = useState<ServiceStatus[]>([]);
   const [containers, setContainers] = useState<DockerContainerStatus[]>([]);
   const [editableFiles, setEditableFiles] = useState<EditableFileInfo[]>([]);
+  const [portData, setPortData] = useState<PortOverviewResponse | null>(null);
+  const [isLoadingPorts, setIsLoadingPorts] = useState(false);
 
   // Connectivity & Tab state
   const [isLive, setIsLive] = useState(false);
@@ -60,21 +64,26 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  // 2. Fetch non-streaming data (services, containers, editable files)
+  // 2. Fetch non-streaming data (services, containers, editable files, ports)
   const loadSystemStaticData = useCallback(async () => {
     if (!user) return;
+    setIsLoadingPorts(true);
     try {
-      const [svcData, dkrData, filesData] = await Promise.allSettled([
+      const [svcData, dkrData, filesData, portsData] = await Promise.allSettled([
         api.listServices(),
         api.listDockerContainers(),
         api.listEditableFiles(),
+        api.getPorts(),
       ]);
 
       if (svcData.status === 'fulfilled') setServices(svcData.value);
       if (dkrData.status === 'fulfilled') setContainers(dkrData.value);
       if (filesData.status === 'fulfilled') setEditableFiles(filesData.value);
+      if (portsData.status === 'fulfilled') setPortData(portsData.value);
     } catch (err: any) {
       console.error('Error fetching system data:', err);
+    } finally {
+      setIsLoadingPorts(false);
     }
   }, [user]);
 
@@ -242,7 +251,14 @@ export const App: React.FC = () => {
           onViewLogs={(name) => setActiveLog({ type: 'docker', name })}
         />
 
-        {/* 5. Secure Configuration Editor */}
+        {/* 5. Listening Ports & Allocation Inspector */}
+        <PortInspector
+          portData={portData}
+          isLoading={isLoadingPorts}
+          onRefresh={loadSystemStaticData}
+        />
+
+        {/* 6. Secure Configuration Editor */}
         <ConfigEditor files={editableFiles} onRefreshFiles={loadSystemStaticData} />
       </main>
 

@@ -9,6 +9,7 @@ from app.models import (
     ServiceRestartRequest,
     DockerRestartRequest,
     HostRebootRequest,
+    PortOverviewResponse,
     GenericResponse
 )
 from app.system_control import (
@@ -18,10 +19,19 @@ from app.system_control import (
     restart_docker_container,
     execute_host_reboot,
     is_service_whitelisted,
-    is_container_whitelisted
+    is_container_whitelisted,
+    get_ports_overview
 )
 
 router = APIRouter(prefix="/api/system", tags=["system"])
+
+# ------------------------------------------------------------------------------
+# Ports Inspection & Allocation
+# ------------------------------------------------------------------------------
+@router.get("/ports", response_model=PortOverviewResponse)
+def get_ports(user: Dict[str, Any] = Depends(get_current_user)):
+    """Inspects currently listening ports and calculates next recommended port."""
+    return get_ports_overview()
 
 # ------------------------------------------------------------------------------
 # systemd Services

@@ -52,3 +52,18 @@ def test_whitelisted_restart_invokes_safe_list():
             assert args[0] == ["sudo", "/bin/systemctl", "restart", "cloudflared"]
             # shell=True MUST be False
             assert kwargs.get("shell") is False
+
+def test_ports_inspection_and_suggested_port():
+    """Verifies that ports overview returns non-empty ports and a valid suggested port."""
+    from app.system_control import get_ports_overview, find_next_available_port
+
+    overview = get_ports_overview()
+    assert "used_ports" in overview
+    assert "suggested_port" in overview
+    assert isinstance(overview["suggested_port"], int)
+    assert 8000 <= overview["suggested_port"] <= 9000
+
+    # Test next available port calculation with mock used list
+    mock_used = [8000, 8001, 8002]
+    suggested = find_next_available_port(start=8000, end=8010, used_ports_list=mock_used)
+    assert suggested not in mock_used

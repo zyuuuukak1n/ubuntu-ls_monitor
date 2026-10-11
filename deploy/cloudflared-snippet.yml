@@ -2,7 +2,7 @@
 # Insert this rule before the final catch-all rule (service: http_status:404):
 
 ingress:
-  - hostname: ubuntu-ls.zyuuuukak1n.dev
+  - hostname: <your-subdomain>.<your-domain>.com
     service: http://127.0.0.1:80
     originRequest:
       noTLSVerify: true

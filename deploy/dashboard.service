@@ -8,7 +8,7 @@ User=dashboard-agent
 Group=dashboard-agent
 WorkingDirectory=/var/www/ubuntu-ls/backend
 EnvironmentFile=/var/www/ubuntu-ls/backend/.env
-ExecStart=/var/www/ubuntu-ls/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1
+ExecStart=/var/www/ubuntu-ls/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8005 --workers 1
 
 # Process supervision & sandboxing
 Restart=always

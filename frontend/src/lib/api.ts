@@ -58,6 +58,24 @@ export interface SystemMetrics {
   }>;
 }
 
+export interface PortInfo {
+  port: number;
+  proto: string;
+  address: string;
+  status: string;
+  process_name?: string | null;
+  pid?: number | null;
+}
+
+export interface PortOverviewResponse {
+  used_ports: PortInfo[];
+  suggested_port: number;
+  common_ranges: Array<{
+    label: string;
+    suggested: number;
+  }>;
+}
+
 export interface ServiceStatus {
   name: string;
   description: string;
@@ -172,6 +190,10 @@ export const api = {
   // Services & Docker
   async listServices(): Promise<ServiceStatus[]> {
     return request<ServiceStatus[]>('/api/system/services');
+  },
+
+  async getPorts(): Promise<PortOverviewResponse> {
+    return request<PortOverviewResponse>('/api/system/ports');
   },
 
   async restartService(name: string): Promise<{ success: boolean; message: string }> {

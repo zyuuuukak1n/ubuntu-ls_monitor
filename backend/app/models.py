@@ -71,6 +71,19 @@ class DockerRestartRequest(BaseModel):
 class HostRebootRequest(BaseModel):
     confirm_text: str = Field(...)
 
+class PortInfo(BaseModel):
+    port: int
+    proto: str
+    address: str
+    status: str
+    process_name: Optional[str] = None
+    pid: Optional[int] = None
+
+class PortOverviewResponse(BaseModel):
+    used_ports: List[PortInfo]
+    suggested_port: int
+    common_ranges: List[Dict[str, Any]]
+
 # ------------------------------------------------------------------------------
 # Editor Schemas
 # ------------------------------------------------------------------------------
