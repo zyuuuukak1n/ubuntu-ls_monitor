@@ -1,8 +1,11 @@
+from __future__ import annotations
 import subprocess
 import shutil
 import json
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
+
+Tuple_Result = Tuple[bool, str]
 from app.config import load_operation_config
 from app.models import ServiceStatus, DockerContainerStatus
 
@@ -236,5 +239,3 @@ def execute_host_reboot() -> Tuple_Result:
     except Exception as e:
         return False, f"Failed to execute reboot: {str(e)}"
 
-# Type alias helper
-Tuple_Result = tuple[bool, str]
