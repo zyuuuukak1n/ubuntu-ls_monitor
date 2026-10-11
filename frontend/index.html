@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO Meta Tags -->
+    <title>Ubuntu-LS Monitor - Secure Home Server Dashboard</title>
+    <meta name="description" content="Ubuntu自宅サーバー向けリソース監視・システム制御Webダッシュボード。WebAuthn/Passkeyによるパスワードレス認証と最小権限サンドボックス設計。" />
+    <meta name="author" content="じゅーかきん" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <!-- Open Graph Protocol (OGP) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Ubuntu-LS Monitor" />
+    <meta property="og:title" content="Ubuntu-LS Monitor - Secure Home Server Dashboard" />
+    <meta property="og:description" content="Ubuntu自宅サーバー向けリソース監視・システム制御Webダッシュボード。WebAuthn/Passkeyによるパスワードレス認証と最小権限サンドボックス設計。" />
+    <meta property="og:url" content="https://ubuntu-ls.zyuuuukak1n.dev/" />
+    <meta property="og:image" content="https://ubuntu-ls.zyuuuukak1n.dev/ogp.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Ubuntu-LS Monitor - Secure Home Server Dashboard" />
+    <meta name="twitter:description" content="Ubuntu自宅サーバー向けリソース監視・システム制御Webダッシュボード。WebAuthn/Passkeyによるパスワードレス認証と最小権限サンドボックス設計。" />
+    <meta name="twitter:image" content="https://ubuntu-ls.zyuuuukak1n.dev/ogp.png" />
+
+    <!-- Dynamic Base URL Resolution Script -->
+    <script>
+      (function() {
+        var base = window.location.origin;
+        var ogUrl = document.querySelector('meta[property="og:url"]');
+        var ogImage = document.querySelector('meta[property="og:image"]');
+        var twImage = document.querySelector('meta[name="twitter:image"]');
+        if (ogUrl) ogUrl.setAttribute('content', base + window.location.pathname);
+        if (ogImage) ogImage.setAttribute('content', base + '/ogp.png');
+        if (twImage) twImage.setAttribute('content', base + '/ogp.png');
+      })();
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-dark-bg text-slate-100 font-sans antialiased selection:bg-brand-500 selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

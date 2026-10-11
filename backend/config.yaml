@@ -1,0 +1,63 @@
+# ==============================================================================
+# Ubuntu-LS Monitor: Operation Whitelist Configuration
+# ==============================================================================
+# All privileged or controlled operations are strictly validated against this file.
+# Any service, container, or file path not listed here will be rejected by the backend.
+
+# ------------------------------------------------------------------------------
+# 1. Allowed systemd Services
+# ------------------------------------------------------------------------------
+# List of systemd services that can be monitored, queried, and restarted.
+allowed_services:
+  - name: "cloudflared"
+    description: "Cloudflare Tunnel Daemon"
+  - name: "docker"
+    description: "Docker Application Container Engine"
+  - name: "apache2"
+    description: "Apache HTTP Server"
+  - name: "ssh"
+    description: "OpenSSH Daemon"
+  - name: "ufw"
+    description: "Uncomplicated Firewall"
+
+# ------------------------------------------------------------------------------
+# 2. Allowed Docker Containers
+# ------------------------------------------------------------------------------
+# List of Docker container names that can be inspected and restarted.
+allowed_containers:
+  - name: "vaultwarden"
+    description: "Password Manager Container"
+  - name: "nextcloud"
+    description: "Self-hosted Cloud Storage"
+  - name: "postgres"
+    description: "Database Container"
+  - name: "redis"
+    description: "In-memory Cache Container"
+
+# ------------------------------------------------------------------------------
+# 3. Editable Configuration Files
+# ------------------------------------------------------------------------------
+# Strict whitelist of files permitted for viewing and editing via Web Dashboard.
+# Path traversal (e.g., ../) and unlisted files are unconditionally blocked.
+# If validate_command is specified, the backend performs a dry-run test before applying changes.
+editable_files:
+  - path: "/etc/cloudflared/config.yml"
+    label: "Cloudflare Tunnel Config"
+    description: "Ingress rules and tunnel configuration"
+    syntax: "yaml"
+    # Command executed to validate syntax before writing (dry-run).
+    # {temp_file} placeholder or direct CLI validation:
+    validate_command: ["cloudflared", "tunnel", "ingress", "validate"]
+
+  - path: "/etc/apache2/sites-available/ubuntu-ls.conf"
+    label: "Apache2 VirtualHost (ubuntu-ls)"
+    description: "Reverse proxy VirtualHost configuration for ubuntu-ls"
+    syntax: "apache"
+    validate_command: ["apache2ctl", "configtest"]
+
+# ------------------------------------------------------------------------------
+# 4. Host Reboot Configuration
+# ------------------------------------------------------------------------------
+host_reboot:
+  enabled: true
+  command: ["sudo", "/bin/systemctl", "reboot"]

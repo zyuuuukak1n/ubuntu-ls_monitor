@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#0a0d14] text-slate-100 min-h-screen selection:bg-blue-600 selection:text-white;
+  }
+}
+
+/* Custom Scrollbar for Terminals and Logs */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Glassmorphism Card Utilities */
+.glass-panel {
+  background: rgba(17, 22, 34, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(22, 29, 45, 0.9);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* Glowing Accent Border */
+.glow-border {
+  box-shadow: 0 0 15px -3px rgba(59, 130, 246, 0.15);
+}

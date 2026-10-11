@@ -1,0 +1,25 @@
+[Unit]
+Description=Ubuntu-LS Monitor Web Dashboard Backend
+After=network.target docker.service
+
+[Service]
+Type=simple
+User=dashboard-agent
+Group=dashboard-agent
+WorkingDirectory=/var/www/ubuntu-ls/backend
+EnvironmentFile=/var/www/ubuntu-ls/backend/.env
+ExecStart=/var/www/ubuntu-ls/backend/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1
+
+# Process supervision & sandboxing
+Restart=always
+RestartSec=3s
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=true
+NoNewPrivileges=false
+
+# Resource limits
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

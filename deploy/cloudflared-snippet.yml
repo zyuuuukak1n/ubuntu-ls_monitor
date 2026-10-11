@@ -1,0 +1,11 @@
+# Snippet for /etc/cloudflared/config.yml
+# Insert this rule before the final catch-all rule (service: http_status:404):
+
+ingress:
+  - hostname: ubuntu-ls.zyuuuukak1n.dev
+    service: http://127.0.0.1:80
+    originRequest:
+      noTLSVerify: true
+
+  # (Existing rules below...)
+  - service: http_status:404

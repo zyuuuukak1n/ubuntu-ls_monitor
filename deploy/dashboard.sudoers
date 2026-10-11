@@ -1,0 +1,12 @@
+# /etc/sudoers.d/dashboard
+# Strict sudo permissions for the 'dashboard-agent' service user.
+# Only specific binaries with exact whitelisted arguments are permitted without password.
+# Shell wildcards or unrestricted root execution are strictly forbidden.
+
+dashboard-agent ALL=(ALL) NOPASSWD: \
+    /bin/systemctl restart cloudflared, \
+    /bin/systemctl restart docker, \
+    /bin/systemctl restart apache2, \
+    /bin/systemctl restart ssh, \
+    /bin/systemctl restart ufw, \
+    /bin/systemctl reboot
