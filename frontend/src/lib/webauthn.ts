@@ -1,6 +1,26 @@
 import * as webauthnJson from '@github/webauthn-json';
 
 /**
+ * Normalizes backend options into CredentialCreationOptionsJSON expected by @github/webauthn-json
+ */
+function toCreationOptions(options: any): webauthnJson.CredentialCreationOptionsJSON {
+  if (options && typeof options === 'object' && 'publicKey' in options) {
+    return options as webauthnJson.CredentialCreationOptionsJSON;
+  }
+  return { publicKey: options } as webauthnJson.CredentialCreationOptionsJSON;
+}
+
+/**
+ * Normalizes backend options into CredentialRequestOptionsJSON expected by @github/webauthn-json
+ */
+function toRequestOptions(options: any): webauthnJson.CredentialRequestOptionsJSON {
+  if (options && typeof options === 'object' && 'publicKey' in options) {
+    return options as webauthnJson.CredentialRequestOptionsJSON;
+  }
+  return { publicKey: options } as webauthnJson.CredentialRequestOptionsJSON;
+}
+
+/**
  * Executes WebAuthn Registration via One-Time Invite Token
  */
 export async function registerWithInvite(
@@ -27,7 +47,7 @@ export async function registerWithInvite(
   const { options, challenge } = await optionsRes.json();
 
   // 2. Trigger native WebAuthn authenticator prompt
-  const credentialResponse = await webauthnJson.create(options);
+  const credentialResponse = await webauthnJson.create(toCreationOptions(options));
 
   // 3. Send response to backend for verification
   const verifyRes = await fetch(`/api/auth/register-verify?invite_token=${encodeURIComponent(inviteToken)}`, {
@@ -71,7 +91,7 @@ export async function addAdditionalPasskey(
   const { options, challenge } = await optionsRes.json();
 
   // 2. Invoke authenticator
-  const credentialResponse = await webauthnJson.create(options);
+  const credentialResponse = await webauthnJson.create(toCreationOptions(options));
 
   // 3. Verify
   const verifyRes = await fetch('/api/auth/add-credential-verify', {
@@ -115,7 +135,7 @@ export async function loginWithPasskey(
   const { options, challenge } = await optionsRes.json();
 
   // 2. Prompt authenticator (TouchID / Windows Hello / YubiKey)
-  const credentialResponse = await webauthnJson.get(options);
+  const credentialResponse = await webauthnJson.get(toRequestOptions(options));
 
   // 3. Verify on server
   const verifyRes = await fetch('/api/auth/login-verify', {
