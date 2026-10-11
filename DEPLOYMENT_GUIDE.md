@@ -79,6 +79,7 @@ cp ../.env.example .env
 vi .env
 ```
 Ensure you configure:
+- `PORT`: App port (e.g. `8005`).
 - `RP_NAME`: Your chosen human-readable name.
 - `RP_ID`: Your effective domain (e.g. `monitor.example.com`).
 - `EXPECTED_ORIGIN`: Your exact FQDN with protocol (e.g. `https://monitor.example.com`).
@@ -86,13 +87,88 @@ Ensure you configure:
 
 Secure the configuration file:
 ```bash
-chmod 600 .env
-sudo chown <service-user>:<service-user> .env
+# Allow read access for non-root deployer user and service agent
+sudo chown $USER:<service-user> .env
+chmod 640 .env
 ```
 
 ---
 
-## 5. Systemd Service Daemon
+## 5. Web Server / Reverse Proxy Setup (Apache2)
+
+Configure Apache2 as a reverse proxy for SPA static files and FastAPI backend:
+
+```bash
+# Copy and edit configuration template
+sudo cp deploy/apache-ubuntu-ls.conf /etc/apache2/sites-available/<app-name>.conf
+sudo vi /etc/apache2/sites-available/<app-name>.conf
+
+# Enable required Apache modules
+sudo a2enmod proxy proxy_http headers rewrite
+
+# Enable site and reload
+sudo a2ensite <app-name>.conf
+sudo apache2ctl configtest
+sudo systemctl reload apache2
+```
+
+---
+
+## 6. Cloudflare Tunnel Configuration & Routing
+
+Cloudflare Tunnel exposes internal services securely to the internet without opening router ports.
+
+### A. Identify Tunnel Management Mode
+
+Check whether your `cloudflared` daemon is **Remotely-managed** (via Cloudflare Zero Trust Dashboard) or **Locally-managed** (via `/etc/cloudflared/config.yml`):
+
+```bash
+sudo journalctl -u cloudflared -n 25 --no-pager
+```
+
+- **Remotely-managed**: Log contains `Updated to new configuration config="..." version=...`. Settings in `/etc/cloudflared/config.yml` are ignored.
+- **Locally-managed**: Log indicates reading config from `/etc/cloudflared/config.yml`.
+
+---
+
+### B. Setup for Remotely-managed Mode (Recommended / Standard)
+
+1. Open [Cloudflare Zero Trust Dashboard](https://one.dash.cloudflare.com/).
+2. Navigate to **Networks** > **Tunnels**.
+3. Select your active tunnel (Status: `HEALTHY`) and click **Configure**.
+4. Go to the **Public Hostnames** tab and click **Add a public hostname**:
+   - **Subdomain**: `<subdomain>` (e.g. `monitor`)
+   - **Domain**: `<your-domain.com>`
+   - **Path**: Leave blank
+   - **Service**:
+     - **Type**: `HTTP`
+     - **URL**: `localhost:80` (or `127.0.0.1:80` forwarding to Apache VirtualHost)
+5. Click **Save hostname**.
+   - Cloudflare automatically registers the CNAME DNS record and pushes config to `cloudflared` within seconds.
+
+---
+
+### C. Setup for Locally-managed Mode
+
+1. Edit `/etc/cloudflared/config.yml`:
+```bash
+sudo vi /etc/cloudflared/config.yml
+```
+2. Insert ingress rule before the final catch-all (`- service: http_status:404`):
+```yaml
+  - hostname: monitor.example.com
+    service: http://127.0.0.1:80
+```
+3. Route DNS record & validate:
+```bash
+cloudflared tunnel route dns <tunnel-uuid> monitor.example.com
+sudo cloudflared tunnel --config /etc/cloudflared/config.yml ingress validate
+sudo systemctl restart cloudflared
+```
+
+---
+
+## 7. Systemd Service Daemon
 
 ```bash
 sudo cp deploy/dashboard.service /etc/systemd/system/dashboard.service
@@ -101,9 +177,15 @@ sudo systemctl enable dashboard.service
 sudo systemctl start dashboard.service
 ```
 
+Verify backend health:
+```bash
+curl -s http://127.0.0.1:8005/api/health
+# Response: {"status":"ok","app":"ubuntu-ls-monitor"}
+```
+
 ---
 
-## 6. Initial Admin Passkey Bootstrapping
+## 8. Initial Admin Passkey Bootstrapping
 
 Because open user registration is completely disabled, generate a 15-minute one-time bootstrap invite link on the server:
 
@@ -117,3 +199,4 @@ python manage.py create-invite
 2. Enter your desired administrator username and device label.
 3. Complete the biometric / hardware prompt on your browser.
 4. The token is consumed immediately upon successful Passkey creation.
+
